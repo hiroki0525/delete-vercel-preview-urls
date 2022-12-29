@@ -1,14 +1,20 @@
 import { setTimeout } from "timers/promises";
+import * as core from "@actions/core";
+import * as github from "@actions/github";
 
-const targetBranch = process.env.TARGET_BRANCH;
-const vercelToken = process.env.VERCEL_TOKEN;
-const vercelProjectId = process.env.VERCEL_PROJECT_ID || "";
+if (github.context.eventName !== "delete") {
+  throw new Error("This action only supports delete event.");
+}
+
+const targetBranch = github.context.payload.ref;
+const vercelToken = core.getInput("vercelToken");
+const vercelProjectId = core.getInput("vercelProjectId");
 
 const vercelBaseUrl = "https://api.vercel.com";
 const vercelGetDeploymentsEndpoint = `${vercelBaseUrl}/v6/deployments`;
 const vercelDeleteDeploymentsEndpoint = `${vercelBaseUrl}/v13/deployments`;
 
-console.info(`Target branch is ${targetBranch}.`);
+core.info(`Target branch is ${targetBranch}.`);
 
 // https://vercel.com/docs/rest-api#endpoints/deployments/list-deployments
 // max limit is 100 according to https://vercel.com/docs/rest-api#introduction/api-basics/pagination
@@ -22,7 +28,7 @@ const deploymentsRes = await fetch(
   }
 );
 if (!deploymentsRes.ok) {
-  console.error(
+  core.error(
     `Status code is ${deploymentsRes.status} when fetched to get deployments list. The response message is as follows.`
   );
   const resText = await deploymentsRes.text();
@@ -38,7 +44,7 @@ const shouldDeleteDeploymentIds = deployments
   .map(({ uid }) => uid);
 
 const shouldDeleteDeploymentCount = shouldDeleteDeploymentIds.length;
-console.info(
+core.info(
   `Matched deployments are ${shouldDeleteDeploymentCount}\nTheir ids are ${shouldDeleteDeploymentIds.join(
     ","
   )}`
@@ -70,10 +76,10 @@ shouldDeleteDeploymentIds.map(async (deploymentId) => {
       throw new Error(resText);
     }
   } catch (e) {
-    console.error(
+    core.error(
       `Status code is ${deleteDeploymentRes?.status} when fetched to delete a deployment.`
     );
-    console.error(e);
+    core.error(e);
     notDeletedDeploymentIds.push(deploymentId);
   }
 });
@@ -85,7 +91,7 @@ if (notDeletedDeploymentIds.length > 0) {
     )}`
   );
 }
-console.info(
+core.info(
   `Success! There are all deleted deployments which ids are ${shouldDeleteDeploymentIds.join(
     ","
   )}`
