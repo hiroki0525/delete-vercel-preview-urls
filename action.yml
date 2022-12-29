@@ -1,0 +1,29 @@
+name: delete-vercel-preview-urls
+description: delete public Vercel Preview urls if remote branch is deleted.
+author: Hiroki Miyaji
+inputs:
+  vercelToken:
+    description: Vercel token.
+    required: true
+  vercelProjectId:
+    description: Vercel project id. I recommend to set this parameter.
+    default: ""
+    required: false
+
+branding:
+  icon: "trash-2"
+  color: "gray-dark"
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
+      with:
+        node-version-file: ".node-version"
+    - name: Delete Vercel Deployment
+      run: npm run delete-remote-url
+      env:
+        VERCEL_TOKEN: ${{inputs.vercelToken}}
+        VERCEL_PROJECT_ID: ${{ inputs.vercelProjectId }}
+        TARGET_BRANCH: ${{ github.event.ref }}
