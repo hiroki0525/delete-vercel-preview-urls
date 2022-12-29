@@ -1,7 +1,6 @@
 import { setTimeout } from "timers/promises";
 import * as core from "@actions/core";
 import * as github from "@actions/github";
-import fetch from "node-fetch";
 
 if (github.context.eventName !== "delete") {
   throw new Error("This action only supports delete event.");
