@@ -27,7 +27,6 @@
     "node": "18.x"
   },
   "devDependencies": {
-    "@octokit/webhooks-definitions": "^3.67.3",
     "eslint": "^8.30.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-import": "^2.26.0",
