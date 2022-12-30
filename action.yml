@@ -6,9 +6,8 @@ inputs:
     description: Vercel token.
     required: true
   vercelProjectId:
-    description: Vercel project id. I recommend to set this parameter.
-    default: ""
-    required: false
+    description: Vercel project id.
+    required: true
 
 branding:
   icon: "trash-2"
