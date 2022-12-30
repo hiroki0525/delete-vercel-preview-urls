@@ -1,8 +1,8 @@
 FROM node:18
 
-COPY src ./src
+COPY dist ./dist
 COPY package*.json ./
 
 RUN npm ci
 
-ENTRYPOINT ["node", "/src/main.js"]
+ENTRYPOINT ["node", "/dist/main.js"]

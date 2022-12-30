@@ -1,6 +1,7 @@
 import { setTimeout } from "timers/promises";
 import * as core from "@actions/core";
 import * as github from "@actions/github";
+import type { DeploymentsResponse } from "./vercelResponseTypes";
 
 if (github.context.eventName !== "delete") {
   throw new Error("This action only supports delete event.");
@@ -34,12 +35,12 @@ if (!deploymentsRes.ok) {
   const resText = await deploymentsRes.text();
   throw new Error(resText);
 }
-const { deployments } = await deploymentsRes.json();
+const { deployments } = (await deploymentsRes.json()) as DeploymentsResponse;
 const shouldDeleteDeploymentIds = deployments
   .filter(
     ({ state, meta }) =>
       meta?.githubCommitRef === targetBranch &&
-      ["BUILDING", "INITIALIZING", "QUEUED", "READY"].includes(state)
+      ["BUILDING", "INITIALIZING", "QUEUED", "READY"].includes(state ?? "")
   )
   .map(({ uid }) => uid);
 
@@ -55,7 +56,7 @@ if (shouldDeleteDeploymentCount === 0) {
   );
 }
 
-const notDeletedDeploymentIds = [];
+const notDeletedDeploymentIds: string[] = [];
 // forEach can't use async/await
 shouldDeleteDeploymentIds.map(async (deploymentId) => {
   let deleteDeploymentRes;
